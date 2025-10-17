@@ -56,36 +56,21 @@ header {
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1;
+    background: white;
+    padding: 12px 20px;
+    border-radius: var(--siste-radius);
+    box-shadow: var(--siste-sombra);
+    display: inline-block;
 }
 
 .logo-siste {
     color: var(--siste-azul);
-    background: white;
-    padding: 8px 12px;
-    border-radius: var(--siste-radius);
-    margin-right: 4px;
-    box-shadow: var(--siste-sombra);
 }
 
 .logo-tienda {
     color: var(--siste-naranja);
-    background: white;
-    padding: 8px 12px;
-    border-radius: var(--siste-radius);
-    box-shadow: var(--siste-sombra);
 }
 
-.logo-subtitle {
-    font-size: 1.2rem;
-    color: var(--siste-gris);
-    background: white;
-    padding: 6px 12px;
-    border-radius: var(--siste-radius);
-    display: inline-block;
-    margin: 0;
-    font-weight: 400;
-    box-shadow: var(--siste-sombra);
-}
 
 .header-description {
     font-size: 1.3rem;
@@ -401,16 +386,7 @@ input[type="range"]::-moz-range-thumb:hover {
     
     .logo {
         font-size: 2.5rem;
-    }
-    
-    .logo-siste, .logo-tienda {
-        padding: 6px 10px;
-        margin-right: 2px;
-    }
-    
-    .logo-subtitle {
-        font-size: 1rem;
-        padding: 4px 10px;
+        padding: 10px 16px;
     }
     
     .header-description {
