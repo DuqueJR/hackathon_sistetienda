@@ -408,10 +408,25 @@ function irAValidacion() {
 
 // Función para resetear proceso
 function resetearProceso() {
+    // Limpiar variables globales
     currentToken = null;
     clearInterval(countdownInterval);
+    
+    // Resetear formulario de validación
     elements.validacionForm.reset();
-    elements.confianzaValue.textContent = '5';
+    
+    // Resetear valores de los sliders
+    elements.knowBuyerSlider.value = '3';
+    elements.buyFreqSlider.value = '3';
+    updateKnowBuyerValue();
+    updateBuyFreqValue();
+    
+    // Limpiar contenido de resultado
     elements.resultadoContent.innerHTML = '<div class="loading">Procesando solicitud...</div>';
+    
+    // Volver a la vista inicial
     showView('inicio');
+    
+    console.log('🔄 Proceso reiniciado correctamente');
 }
+
