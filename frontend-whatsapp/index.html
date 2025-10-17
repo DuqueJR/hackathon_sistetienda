@@ -177,8 +177,12 @@
         <div class="chat-messages" id="chat-messages">
             <div class="message bot-message">
                 ¡Hola! 👋<br><br>
-                Soy el asistente de <strong>Confianza Vecina</strong>, el sistema de crédito basado en la confianza de tu tendero.<br><br>
-                Para procesar tu solicitud de crédito, necesito algunos datos básicos.
+                Soy el asistente de <strong>Confianza Vecina</strong>, tu nueva forma de acceder a crédito de manera rápida y confiable.<br><br>
+                🏪 <strong>¿Cómo funciona?</strong><br>
+                • Tu tendero te conoce y confía en ti<br>
+                • Nosotros evaluamos esa confianza<br>
+                • ¡Obtienes tu crédito en minutos!<br><br>
+                Para comenzar, necesito algunos datos básicos. ¿Estás listo? 😊
             </div>
         </div>
 
@@ -198,7 +202,12 @@
             
             <div class="chat-messages">
                 <div class="message bot-message">
-                    Perfecto, ahora necesito que completes este formulario con tus datos personales:
+                    ¡Perfecto! 🎉<br><br>
+                    Ahora necesito que completes este formulario con tus datos personales. <strong>No te preocupes</strong>, toda tu información está protegida y solo se usa para evaluar tu solicitud.<br><br>
+                    📝 <strong>Datos requeridos:</strong><br>
+                    • Información básica (cédula, nombre, teléfono)<br>
+                    • Datos opcionales (dirección, ingresos, trabajo)<br><br>
+                    ¡Completa solo lo que te sientas cómodo compartiendo!
                 </div>
                 
                 <form id="client-form">
@@ -225,11 +234,13 @@
                     <div class="form-group">
                         <label for="ingresos">Ingresos mensuales (opcional):</label>
                         <input type="number" id="ingresos" name="ingresos_mensuales" min="0" step="1000" placeholder="Ej: 1500000">
+                        <small style="color: #666; font-size: 0.9rem;">💡 Esto nos ayuda a calcular el monto ideal para ti</small>
                     </div>
                     
                     <div class="form-group">
                         <label for="trabajo">Trabajo (opcional):</label>
-                        <input type="text" id="trabajo" name="trabajo" placeholder="Ej: Empleado">
+                        <input type="text" id="trabajo" name="trabajo" placeholder="Ej: Empleado, Independiente, Estudiante">
+                        <small style="color: #666; font-size: 0.9rem;">💼 Nos ayuda a entender mejor tu situación</small>
                     </div>
                     
                     <button type="submit" class="btn-primary">Enviar Datos</button>
@@ -316,13 +327,15 @@
                 console.log('Datos enviados:', result);
 
                 addBotMessage(`
-                    ✅ <strong>¡Datos recibidos correctamente!</strong><br><br>
-                    Gracias por completar el formulario. Tu solicitud está siendo procesada.<br><br>
-                    <strong>Próximos pasos:</strong><br>
-                    • Tu tendero validará la información<br>
-                    • Recibirás una respuesta en unos minutos<br>
-                    • Si es aprobado, te contactaremos con los detalles del crédito<br><br>
-                    ¡Gracias por confiar en Confianza Vecina! 🏪
+                    🎉 <strong>¡Excelente! Datos recibidos correctamente</strong><br><br>
+                    ✅ Tu información ha sido registrada de forma segura<br>
+                    🔄 Tu solicitud está siendo procesada<br><br>
+                    <strong>📋 Próximos pasos:</strong><br>
+                    • Tu tendero validará la información (2-3 minutos)<br>
+                    • Recibirás una respuesta automática<br>
+                    • Si es aprobado, te contactaremos con los detalles<br><br>
+                    💡 <strong>Tip:</strong> Mientras tanto, puedes preguntarle a tu tendero sobre el proceso<br><br>
+                    ¡Gracias por confiar en Confianza Vecina! 🏪✨
                 `);
 
             } catch (error) {
