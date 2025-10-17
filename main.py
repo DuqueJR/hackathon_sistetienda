@@ -132,6 +132,29 @@ async def whatsapp_webhook(request: WhatsAppWebhookRequest):
         
         update_transaction(token, client_data=client_data, status=TransactionStatus.CLIENT_DATA_RECEIVED)
         
+        # Verificar si ya tenemos datos del tendero para procesar
+        transaction = get_transaction(token)
+        print(f"🔍 DEBUG WHATSAPP: Token {token}")
+        print(f"   Estado actual: {transaction.status}")
+        print(f"   Tiene client_data: {transaction.client_data is not None}")
+        print(f"   Tiene store_validation: {transaction.store_validation is not None}")
+        
+        if transaction.store_validation:
+            print(f"✅ PROCESANDO CRÉDITO: Ambos datos completos")
+            # Calcular puntaje y procesar crédito
+            update_transaction(token, status=TransactionStatus.PROCESSING)
+            credit_result = calculate_credit_score(transaction)
+            update_transaction(token, credit_result=credit_result.model_dump())
+            
+            # Simular registro en Sistecrédito
+            register_credit_mock(transaction, credit_result)
+            
+            # Marcar como completado
+            update_transaction(token, status=TransactionStatus.COMPLETED)
+            print(f"✅ CRÉDITO COMPLETADO: Estado cambiado a COMPLETED")
+        else:
+            print(f"⏳ ESPERANDO DATOS DEL TENDERO: Solo datos del cliente recibidos")
+        
         return {"message": "Datos del cliente recibidos correctamente", "status": "success"}
         
     except HTTPException:
@@ -173,7 +196,13 @@ async def pos_webhook(request: POSWebhookRequest):
         
         # Si ya tenemos datos del cliente, procesar la solicitud
         transaction = get_transaction(token)
+        print(f"🔍 DEBUG POS: Token {token}")
+        print(f"   Estado actual: {transaction.status}")
+        print(f"   Tiene client_data: {transaction.client_data is not None}")
+        print(f"   Tiene store_validation: {transaction.store_validation is not None}")
+        
         if transaction.client_data:
+            print(f"✅ PROCESANDO CRÉDITO: Ambos datos completos")
             # Calcular puntaje y procesar crédito
             update_transaction(token, status=TransactionStatus.PROCESSING)
             credit_result = calculate_credit_score(transaction)
@@ -184,6 +213,9 @@ async def pos_webhook(request: POSWebhookRequest):
             
             # Marcar como completado
             update_transaction(token, status=TransactionStatus.COMPLETED)
+            print(f"✅ CRÉDITO COMPLETADO: Estado cambiado a COMPLETED")
+        else:
+            print(f"⏳ ESPERANDO DATOS DEL CLIENTE: Solo datos del tendero recibidos")
         
         return {"message": "Validación del tendero recibida correctamente", "status": "success"}
         
