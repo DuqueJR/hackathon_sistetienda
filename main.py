@@ -14,7 +14,7 @@ from models import (
 )
 from storage import (
     create_transaction, get_transaction, update_transaction,
-    is_token_valid, calculate_trust_score, register_credit_mock
+    is_token_valid, calculate_credit_score, register_credit_mock
 )
 
 # Crear la aplicación FastAPI
@@ -62,7 +62,7 @@ async def initiate_transaction(request: InitiateTransactionRequest):
     """
     try:
         # Crear nueva transacción
-        transaction = create_transaction()
+        transaction = create_transaction(request.store_id, request.tendero_name)
         
         # Generar URL para el QR (en producción sería la URL del bot de WhatsApp)
         qr_url = f"https://wa.me/573001234567?text=Hola%20quiero%20solicitar%20credito%20token:{transaction.token}"
@@ -122,12 +122,12 @@ async def whatsapp_webhook(request: WhatsAppWebhookRequest):
         # Actualizar transacción con datos del cliente
         from models import ClientData
         client_data = ClientData(
-            cedula=request.cedula,
-            nombre=request.nombre,
             telefono=request.telefono,
             direccion=request.direccion,
             ingresos_mensuales=request.ingresos_mensuales,
-            trabajo=request.trabajo
+            trabajo=request.trabajo,
+            psych_organized=request.psych_organized,
+            psych_plan=request.psych_plan
         )
         
         update_transaction(token, client_data=client_data, status=TransactionStatus.CLIENT_DATA_RECEIVED)
@@ -160,12 +160,13 @@ async def pos_webhook(request: POSWebhookRequest):
         # Actualizar transacción con validación del tendero
         from models import StoreValidation
         store_validation = StoreValidation(
-            cedula=request.cedula,
-            nombre=request.nombre,
-            tiempo_cliente=request.tiempo_cliente,
-            frecuencia_compra=request.frecuencia_compra,
-            monto_promedio=request.monto_promedio,
-            confianza=request.confianza
+            cedula_cliente=request.cedula_cliente,
+            nombre_cliente=request.nombre_cliente,
+            know_buyer=request.know_buyer,
+            buy_freq=request.buy_freq,
+            avg_purchase=request.avg_purchase,
+            distance_km=request.distance_km,
+            address_verified=request.address_verified
         )
         
         update_transaction(token, store_validation=store_validation, status=TransactionStatus.STORE_VALIDATION_RECEIVED)
@@ -175,8 +176,8 @@ async def pos_webhook(request: POSWebhookRequest):
         if transaction.client_data:
             # Calcular puntaje y procesar crédito
             update_transaction(token, status=TransactionStatus.PROCESSING)
-            credit_result = calculate_trust_score(transaction)
-            update_transaction(token, trust_score=credit_result.puntaje, credit_result=credit_result.dict())
+            credit_result = calculate_credit_score(transaction)
+            update_transaction(token, credit_result=credit_result.dict())
             
             # Simular registro en Sistecrédito
             register_credit_mock(transaction, credit_result)

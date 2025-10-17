@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Optional, Any
 import uuid
 from models import Transaction, TransactionStatus, ClientData, StoreValidation, CreditResult
+from credit_heuristic import heuristic_micro_v2, get_default_config
 
 # Almacén en memoria para las transacciones
 transactions_storage: Dict[str, Transaction] = {}
@@ -10,7 +11,7 @@ def generate_token() -> str:
     """Genera un token único para la transacción"""
     return str(uuid.uuid4())
 
-def create_transaction() -> Transaction:
+def create_transaction(store_id: str, tendero_name: str) -> Transaction:
     """Crea una nueva transacción con token y fecha de expiración"""
     token = generate_token()
     expires_at = datetime.now() + timedelta(minutes=15)  # 15 minutos de expiración
@@ -47,89 +48,74 @@ def is_token_valid(token: str) -> bool:
     
     return datetime.now() < transaction.expires_at
 
-def calculate_trust_score(transaction: Transaction) -> CreditResult:
+def calculate_credit_score(transaction: Transaction) -> CreditResult:
     """
-    Calcula el puntaje de confianza basado en los datos del cliente y validación del tendero
+    Calcula el puntaje crediticio usando el modelo heurístico Micro v2
     """
     if not transaction.client_data or not transaction.store_validation:
         return CreditResult(
-            aprobado=False,
-            puntaje=0,
-            motivo="Faltan datos del cliente o validación del tendero"
+            category="E",
+            score_conf=0.0,
+            risk_pct=100.0,
+            debt_capacity_pct=0.0,
+            cupo_estimated=0.0,
+            raw_cupo=0.0,
+            comp_feature=0.0,
+            comp_income=0.0,
+            features={},
+            clients_per_day=0,
+            income_proxy_daily=0.0
         )
     
-    score = 0
+    # Preparar datos para el modelo heurístico
     client_data = transaction.client_data
     store_validation = transaction.store_validation
     
-    # Puntos por tiempo de relación con el cliente (máximo 25 puntos)
-    tiempo_puntos = {
-        "menos-6-meses": 5,
-        "6-meses-1-ano": 10,
-        "1-2-anos": 15,
-        "mas-2-anos": 25
+    # Crear diccionario con los datos requeridos por el modelo
+    model_input = {
+        "know_buyer": store_validation.know_buyer,
+        "buy_freq": store_validation.buy_freq,
+        "avg_purchase": store_validation.avg_purchase,
+        "psych_organized": client_data.psych_organized,
+        "psych_plan": client_data.psych_plan,
+        "distance_km": store_validation.distance_km,
+        "address_verified": store_validation.address_verified
     }
-    score += tiempo_puntos.get(store_validation.tiempo_cliente, 0)
     
-    # Puntos por frecuencia de compra (máximo 20 puntos)
-    frecuencia_puntos = {
-        "diaria": 20,
-        "semanal": 15,
-        "quincenal": 10,
-        "mensual": 5
-    }
-    score += frecuencia_puntos.get(store_validation.frecuencia_compra, 0)
-    
-    # Puntos por monto promedio (máximo 15 puntos)
-    if store_validation.monto_promedio >= 100000:
-        score += 15
-    elif store_validation.monto_promedio >= 50000:
-        score += 10
-    elif store_validation.monto_promedio >= 20000:
-        score += 5
-    
-    # Puntos por nivel de confianza del tendero (máximo 20 puntos)
-    score += store_validation.confianza * 2
-    
-    # Puntos por ingresos del cliente (máximo 20 puntos)
-    if client_data.ingresos_mensuales:
-        if client_data.ingresos_mensuales >= 2000000:
-            score += 20
-        elif client_data.ingresos_mensuales >= 1000000:
-            score += 15
-        elif client_data.ingresos_mensuales >= 500000:
-            score += 10
-        elif client_data.ingresos_mensuales >= 300000:
-            score += 5
-    
-    # Determinar aprobación (mínimo 60 puntos para aprobar)
-    aprobado = score >= 60
-    
-    # Calcular monto del crédito si es aprobado
-    monto = None
-    if aprobado:
-        if score >= 80:
-            monto = min(500000, client_data.ingresos_mensuales * 0.3 if client_data.ingresos_mensuales else 200000)
-        elif score >= 70:
-            monto = min(300000, client_data.ingresos_mensuales * 0.2 if client_data.ingresos_mensuales else 150000)
-        else:
-            monto = min(200000, client_data.ingresos_mensuales * 0.15 if client_data.ingresos_mensuales else 100000)
-    
-    motivo = None
-    if not aprobado:
-        if score < 30:
-            motivo = "Puntaje muy bajo. Relación muy nueva o poca confianza."
-        elif score < 45:
-            motivo = "Puntaje insuficiente. Frecuencia de compra baja."
-        else:
-            motivo = "Puntaje cercano al mínimo requerido. Se requiere mayor historial."
-    
-    return CreditResult(
-        aprobado=aprobado,
-        monto=monto,
-        puntaje=score,
-        motivo=motivo
-    )
+    try:
+        # Ejecutar el modelo heurístico
+        result = heuristic_micro_v2(model_input)
+        
+        # Convertir resultado a CreditResult
+        return CreditResult(
+            category=result["category"],
+            score_conf=result["score_conf"],
+            risk_pct=result["risk_pct"],
+            debt_capacity_pct=result["debt_capacity_pct"],
+            cupo_estimated=result["cupo_estimated"],
+            raw_cupo=result["raw_cupo"],
+            comp_feature=result["comp_feature"],
+            comp_income=result["comp_income"],
+            features=result["features"],
+            clients_per_day=result["clients_per_day"],
+            income_proxy_daily=result["income_proxy_daily"]
+        )
+        
+    except Exception as e:
+        print(f"Error en cálculo de puntaje: {e}")
+        return CreditResult(
+            category="E",
+            score_conf=0.0,
+            risk_pct=100.0,
+            debt_capacity_pct=0.0,
+            cupo_estimated=0.0,
+            raw_cupo=0.0,
+            comp_feature=0.0,
+            comp_income=0.0,
+            features={},
+            clients_per_day=0,
+            income_proxy_daily=0.0
+        )
 
 def register_credit_mock(transaction: Transaction, credit_result: CreditResult) -> Dict[str, Any]:
     """
@@ -138,13 +124,13 @@ def register_credit_mock(transaction: Transaction, credit_result: CreditResult) 
     """
     print(f"🎯 SIMULACIÓN SISTECRÉDITO:")
     print(f"   Token: {transaction.token}")
-    print(f"   Cliente: {transaction.client_data.nombre} ({transaction.client_data.cedula})")
-    print(f"   Puntaje: {credit_result.puntaje}/100")
-    print(f"   Resultado: {'✅ APROBADO' if credit_result.aprobado else '❌ RECHAZADO'}")
-    if credit_result.aprobado:
-        print(f"   Monto: ${credit_result.monto:,.0f}")
-    if credit_result.motivo:
-        print(f"   Motivo: {credit_result.motivo}")
+    print(f"   Cliente: {transaction.store_validation.nombre_cliente} ({transaction.store_validation.cedula_cliente})")
+    print(f"   Categoría: {credit_result.category}")
+    print(f"   Puntaje: {credit_result.score_conf:.4f}")
+    print(f"   Riesgo: {credit_result.risk_pct:.2f}%")
+    print(f"   Cupo Estimado: ${credit_result.cupo_estimated:,.2f}")
+    print(f"   Componente Feature: ${credit_result.comp_feature:,.2f}")
+    print(f"   Componente Income: ${credit_result.comp_income:,.2f}")
     print(f"   Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("-" * 50)
     

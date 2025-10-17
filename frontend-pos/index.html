@@ -52,47 +52,60 @@
                 </p>
                 <form id="validacion-form">
                     <div class="form-group">
-                        <label for="cedula">Cédula del Cliente:</label>
-                        <input type="text" id="cedula" name="cedula" required placeholder="Ej: 12345678">
+                        <label for="cedula-cliente">Cédula del Cliente:</label>
+                        <input type="text" id="cedula-cliente" name="cedula_cliente" required placeholder="Ej: 12345678">
                     </div>
                     <div class="form-group">
-                        <label for="nombre">Nombre del Cliente:</label>
-                        <input type="text" id="nombre" name="nombre" required placeholder="Ej: Juan Pérez">
+                        <label for="nombre-cliente">Nombre del Cliente:</label>
+                        <input type="text" id="nombre-cliente" name="nombre_cliente" required placeholder="Ej: Juan Pérez">
                     </div>
                     <div class="form-group">
-                        <label for="tiempo-cliente">¿Cuánto tiempo conoce al cliente?</label>
-                        <select id="tiempo-cliente" name="tiempo_cliente" required>
-                            <option value="">Seleccionar...</option>
-                            <option value="menos-6-meses">Menos de 6 meses</option>
-                            <option value="6-meses-1-ano">6 meses a 1 año</option>
-                            <option value="1-2-anos">1 a 2 años</option>
-                            <option value="mas-2-anos">Más de 2 años</option>
-                        </select>
+                        <label for="know-buyer">¿Cuánto tiempo conoce al cliente? (0-5):</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 0.9rem; color: #666;">0 (No lo conozco)</span>
+                            <input type="range" id="know-buyer" name="know_buyer" min="0" max="5" value="2" style="flex: 1;">
+                            <span style="font-size: 0.9rem; color: #666;">5 (Muchos años)</span>
+                        </div>
+                        <div style="text-align: center; margin-top: 10px;">
+                            <span id="know-buyer-value" style="font-size: 1.5rem; font-weight: bold; color: #667eea;">2</span>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="frecuencia-compra">¿Con qué frecuencia compra?</label>
-                        <select id="frecuencia-compra" name="frecuencia_compra" required>
-                            <option value="">Seleccionar...</option>
-                            <option value="diaria">Diaria</option>
-                            <option value="semanal">Semanal</option>
-                            <option value="quincenal">Quincenal</option>
-                            <option value="mensual">Mensual</option>
-                        </select>
+                        <label for="buy-freq">¿Con qué frecuencia compra? (0-5):</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 0.9rem; color: #666;">0 (Nunca)</span>
+                            <input type="range" id="buy-freq" name="buy_freq" min="0" max="5" value="2" style="flex: 1;">
+                            <span style="font-size: 0.9rem; color: #666;">5 (Diario)</span>
+                        </div>
+                        <div style="text-align: center; margin-top: 10px;">
+                            <span id="buy-freq-value" style="font-size: 1.5rem; font-weight: bold; color: #667eea;">2</span>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="monto-promedio">Monto promedio de compra:</label>
-                        <input type="number" id="monto-promedio" name="monto_promedio" min="0" step="1000" required placeholder="Ej: 50000">
+                        <label for="avg-purchase">Monto promedio de compra:</label>
+                        <input type="number" id="avg-purchase" name="avg_purchase" min="0" step="1000" required placeholder="Ej: 50000">
                         <small style="color: #666;">En pesos colombianos</small>
                     </div>
                     <div class="form-group">
-                        <label for="confianza">Nivel de confianza (1-10):</label>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 0.9rem; color: #666;">1 (Poca confianza)</span>
-                            <input type="range" id="confianza" name="confianza" min="1" max="10" value="5" style="flex: 1;">
-                            <span style="font-size: 0.9rem; color: #666;">10 (Total confianza)</span>
-                        </div>
-                        <div style="text-align: center; margin-top: 10px;">
-                            <span id="confianza-value" style="font-size: 1.5rem; font-weight: bold; color: #667eea;">5</span>
+                        <label for="distance-km">Distancia en km (opcional):</label>
+                        <input type="number" id="distance-km" name="distance_km" min="0" step="0.1" placeholder="Ej: 2.5">
+                        <small style="color: #666;">Dejar vacío si está muy cerca</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="address-verified">¿Dirección verificada?</label>
+                        <div style="display: flex; gap: 20px; margin-top: 10px;">
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="address-verified-yes" name="address_verified" value="true">
+                                <span>Sí</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="address-verified-no" name="address_verified" value="false">
+                                <span>No</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="address-verified-na" name="address_verified" value="" checked>
+                                <span>No aplica</span>
+                            </label>
                         </div>
                     </div>
                     <button type="submit" class="btn-primary">Validar Cliente</button>

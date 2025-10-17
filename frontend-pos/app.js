@@ -18,8 +18,10 @@ const elements = {
     qrContainer: document.getElementById('qr-container'),
     countdown: document.getElementById('countdown'),
     validacionForm: document.getElementById('validacion-form'),
-    confianzaSlider: document.getElementById('confianza'),
-    confianzaValue: document.getElementById('confianza-value'),
+    knowBuyerSlider: document.getElementById('know-buyer'),
+    knowBuyerValue: document.getElementById('know-buyer-value'),
+    buyFreqSlider: document.getElementById('buy-freq'),
+    buyFreqValue: document.getElementById('buy-freq-value'),
     resultadoContent: document.getElementById('resultado-content'),
     nuevoProcesoBtn: document.getElementById('nuevo-proceso-btn'),
     irValidacionBtn: document.getElementById('ir-validacion-btn')
@@ -35,7 +37,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeEventListeners() {
     elements.iniciarBtn.addEventListener('click', iniciarProceso);
     elements.validacionForm.addEventListener('submit', validarCliente);
-    elements.confianzaSlider.addEventListener('input', updateConfianzaValue);
+    elements.knowBuyerSlider.addEventListener('input', updateKnowBuyerValue);
+    elements.buyFreqSlider.addEventListener('input', updateBuyFreqValue);
     elements.nuevoProcesoBtn.addEventListener('click', resetearProceso);
     elements.irValidacionBtn.addEventListener('click', irAValidacion);
 }
@@ -238,12 +241,13 @@ async function validarCliente(event) {
         const formData = new FormData(elements.validacionForm);
         const validationData = {
             token: currentToken,
-            cedula: formData.get('cedula'),
-            nombre: formData.get('nombre'),
-            tiempo_cliente: formData.get('tiempo_cliente'),
-            frecuencia_compra: formData.get('frecuencia_compra'),
-            monto_promedio: parseFloat(formData.get('monto_promedio')),
-            confianza: parseInt(formData.get('confianza'))
+            cedula_cliente: formData.get('cedula_cliente'),
+            nombre_cliente: formData.get('nombre_cliente'),
+            know_buyer: parseInt(formData.get('know_buyer')),
+            buy_freq: parseInt(formData.get('buy_freq')),
+            avg_purchase: parseFloat(formData.get('avg_purchase')),
+            distance_km: formData.get('distance_km') ? parseFloat(formData.get('distance_km')) : null,
+            address_verified: formData.get('address_verified') ? formData.get('address_verified') === 'true' : null
         };
 
         // Deshabilitar el formulario mientras se procesa
@@ -322,14 +326,18 @@ async function pollResultado() {
 
 // Función para mostrar resultado
 function mostrarResultado(resultado) {
-    if (resultado.aprobado) {
+    const isApproved = resultado.category && ['A', 'B', 'C'].includes(resultado.category);
+    
+    if (isApproved) {
         elements.resultadoContent.innerHTML = `
             <div class="resultado-aprobado">
                 <div style="font-size: 3rem; margin-bottom: 20px;">✅</div>
                 <h3>¡Crédito Aprobado!</h3>
                 <div style="margin: 20px 0;">
-                    <p><strong>Monto aprobado:</strong> $${resultado.monto.toLocaleString('es-CO')}</p>
-                    <p><strong>Puntaje de confianza:</strong> ${resultado.puntaje}/100</p>
+                    <p><strong>Categoría:</strong> ${resultado.category}</p>
+                    <p><strong>Cupo estimado:</strong> $${resultado.cupo_estimated.toLocaleString('es-CO')}</p>
+                    <p><strong>Puntaje de confianza:</strong> ${(resultado.score_conf * 100).toFixed(1)}%</p>
+                    <p><strong>Riesgo:</strong> ${resultado.risk_pct.toFixed(1)}%</p>
                     <p><strong>Token:</strong> ${currentToken}</p>
                 </div>
                 <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
@@ -344,8 +352,9 @@ function mostrarResultado(resultado) {
                 <div style="font-size: 3rem; margin-bottom: 20px;">❌</div>
                 <h3>Crédito Rechazado</h3>
                 <div style="margin: 20px 0;">
-                    <p><strong>Puntaje de confianza:</strong> ${resultado.puntaje}/100</p>
-                    <p><strong>Motivo:</strong> ${resultado.motivo}</p>
+                    <p><strong>Categoría:</strong> ${resultado.category}</p>
+                    <p><strong>Puntaje de confianza:</strong> ${(resultado.score_conf * 100).toFixed(1)}%</p>
+                    <p><strong>Riesgo:</strong> ${resultado.risk_pct.toFixed(1)}%</p>
                     <p><strong>Token:</strong> ${currentToken}</p>
                 </div>
                 <div style="background: #fef2f2; padding: 15px; border-radius: 8px; margin-top: 20px;">
@@ -375,9 +384,14 @@ function mostrarError(mensaje) {
     `;
 }
 
-// Función para actualizar valor de confianza
-function updateConfianzaValue() {
-    elements.confianzaValue.textContent = elements.confianzaSlider.value;
+// Función para actualizar valor de know_buyer
+function updateKnowBuyerValue() {
+    elements.knowBuyerValue.textContent = elements.knowBuyerSlider.value;
+}
+
+// Función para actualizar valor de buy_freq
+function updateBuyFreqValue() {
+    elements.buyFreqValue.textContent = elements.buyFreqSlider.value;
 }
 
 // Función para ir a validación manualmente

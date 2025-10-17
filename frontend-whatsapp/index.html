@@ -212,16 +212,6 @@
                 
                 <form id="client-form">
                     <div class="form-group">
-                        <label for="cedula">Cédula:</label>
-                        <input type="text" id="cedula" name="cedula" required placeholder="Ej: 12345678">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="nombre">Nombre completo:</label>
-                        <input type="text" id="nombre" name="nombre" required placeholder="Ej: Juan Pérez">
-                    </div>
-                    
-                    <div class="form-group">
                         <label for="telefono">Teléfono:</label>
                         <input type="tel" id="telefono" name="telefono" required placeholder="Ej: 3001234567">
                     </div>
@@ -241,6 +231,32 @@
                         <label for="trabajo">Trabajo (opcional):</label>
                         <input type="text" id="trabajo" name="trabajo" placeholder="Ej: Empleado, Independiente, Estudiante">
                         <small style="color: #666; font-size: 0.9rem;">💼 Nos ayuda a entender mejor tu situación</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="psych_organized">¿Qué tan organizado eres? (1-5):</label>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                            <span style="font-size: 0.9rem; color: #666;">1 (Muy desorganizado)</span>
+                            <input type="range" id="psych_organized" name="psych_organized" min="1" max="5" value="3" style="flex: 1;">
+                            <span style="font-size: 0.9rem; color: #666;">5 (Muy organizado)</span>
+                        </div>
+                        <div style="text-align: center; margin-top: 10px;">
+                            <span id="psych_organized_value" style="font-size: 1.2rem; font-weight: bold; color: #128c7e;">3</span>
+                        </div>
+                        <small style="color: #666; font-size: 0.9rem;">📊 Nos ayuda a evaluar tu responsabilidad financiera</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="psych_plan">¿Qué tan bien planificas tus gastos? (1-5):</label>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                            <span style="font-size: 0.9rem; color: #666;">1 (No planifico)</span>
+                            <input type="range" id="psych_plan" name="psych_plan" min="1" max="5" value="3" style="flex: 1;">
+                            <span style="font-size: 0.9rem; color: #666;">5 (Planifico mucho)</span>
+                        </div>
+                        <div style="text-align: center; margin-top: 10px;">
+                            <span id="psych_plan_value" style="font-size: 1.2rem; font-weight: bold; color: #128c7e;">3</span>
+                        </div>
+                        <small style="color: #666; font-size: 0.9rem;">💰 Nos ayuda a evaluar tu estabilidad financiera</small>
                     </div>
                     
                     <button type="submit" class="btn-primary">Enviar Datos</button>
@@ -302,12 +318,12 @@
             try {
                 const data = {
                     token: currentToken,
-                    cedula: formData.get('cedula'),
-                    nombre: formData.get('nombre'),
                     telefono: formData.get('telefono'),
                     direccion: formData.get('direccion') || null,
                     ingresos_mensuales: formData.get('ingresos_mensuales') ? parseFloat(formData.get('ingresos_mensuales')) : null,
-                    trabajo: formData.get('trabajo') || null
+                    trabajo: formData.get('trabajo') || null,
+                    psych_organized: parseInt(formData.get('psych_organized')),
+                    psych_plan: parseInt(formData.get('psych_plan'))
                 };
 
                 const response = await fetch(`${API_BASE_URL}/webhooks/whatsapp`, {
@@ -351,6 +367,20 @@
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
             extractTokenFromURL();
+            
+            // Event listeners para los sliders
+            const psychOrganizedSlider = document.getElementById('psych_organized');
+            const psychOrganizedValue = document.getElementById('psych_organized_value');
+            const psychPlanSlider = document.getElementById('psych_plan');
+            const psychPlanValue = document.getElementById('psych_plan_value');
+            
+            psychOrganizedSlider.addEventListener('input', function() {
+                psychOrganizedValue.textContent = this.value;
+            });
+            
+            psychPlanSlider.addEventListener('input', function() {
+                psychPlanValue.textContent = this.value;
+            });
             
             clientForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
