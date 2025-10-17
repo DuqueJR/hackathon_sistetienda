@@ -27,8 +27,19 @@
             <div class="card">
                 <h2>Código QR Generado</h2>
                 <div id="qr-container"></div>
-                <p>El cliente debe escanear este código con WhatsApp</p>
-                <div id="timer">Tiempo restante: <span id="countdown">05:00</span></div>
+                <p><strong>Instrucciones para el cliente:</strong></p>
+                <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <p style="margin: 0; color: #0369a1;">1. Abre WhatsApp en tu teléfono</p>
+                    <p style="margin: 5px 0 0 0; color: #0369a1;">2. Escanea este código QR</p>
+                    <p style="margin: 5px 0 0 0; color: #0369a1;">3. Completa el formulario que aparecerá</p>
+                </div>
+                <div id="timer">Tiempo restante: <span id="countdown">15:00</span></div>
+                <p style="margin-top: 15px; font-size: 0.9rem; color: #666;">
+                    Mientras el cliente completa el proceso, puedes llenar el formulario de validación
+                </p>
+                <button id="ir-validacion-btn" class="btn-secondary" style="margin-top: 15px;">
+                    Ir al Formulario de Validación
+                </button>
             </div>
         </div>
 
@@ -36,14 +47,17 @@
         <div id="validacion-view" class="view">
             <div class="card">
                 <h2>Validar Cliente</h2>
+                <p style="color: #666; margin-bottom: 20px;">
+                    Completa la información sobre tu relación con el cliente para evaluar su confiabilidad
+                </p>
                 <form id="validacion-form">
                     <div class="form-group">
                         <label for="cedula">Cédula del Cliente:</label>
-                        <input type="text" id="cedula" name="cedula" required>
+                        <input type="text" id="cedula" name="cedula" required placeholder="Ej: 12345678">
                     </div>
                     <div class="form-group">
                         <label for="nombre">Nombre del Cliente:</label>
-                        <input type="text" id="nombre" name="nombre" required>
+                        <input type="text" id="nombre" name="nombre" required placeholder="Ej: Juan Pérez">
                     </div>
                     <div class="form-group">
                         <label for="tiempo-cliente">¿Cuánto tiempo conoce al cliente?</label>
@@ -67,12 +81,19 @@
                     </div>
                     <div class="form-group">
                         <label for="monto-promedio">Monto promedio de compra:</label>
-                        <input type="number" id="monto-promedio" name="monto_promedio" min="0" step="0.01" required>
+                        <input type="number" id="monto-promedio" name="monto_promedio" min="0" step="1000" required placeholder="Ej: 50000">
+                        <small style="color: #666;">En pesos colombianos</small>
                     </div>
                     <div class="form-group">
                         <label for="confianza">Nivel de confianza (1-10):</label>
-                        <input type="range" id="confianza" name="confianza" min="1" max="10" value="5">
-                        <span id="confianza-value">5</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 0.9rem; color: #666;">1 (Poca confianza)</span>
+                            <input type="range" id="confianza" name="confianza" min="1" max="10" value="5" style="flex: 1;">
+                            <span style="font-size: 0.9rem; color: #666;">10 (Total confianza)</span>
+                        </div>
+                        <div style="text-align: center; margin-top: 10px;">
+                            <span id="confianza-value" style="font-size: 1.5rem; font-weight: bold; color: #667eea;">5</span>
+                        </div>
                     </div>
                     <button type="submit" class="btn-primary">Validar Cliente</button>
                 </form>
@@ -91,7 +112,18 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <!-- Cargar qrcode-generator para navegadores -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script>
+        // Verificar que qrcode esté disponible
+        window.addEventListener('load', function() {
+            if (typeof qrcode === 'undefined') {
+                console.error('qrcode-generator library not loaded');
+            } else {
+                console.log('qrcode-generator cargado correctamente');
+            }
+        });
+    </script>
     <script src="app.js"></script>
 </body>
 </html>

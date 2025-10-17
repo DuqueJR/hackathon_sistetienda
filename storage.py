@@ -13,7 +13,7 @@ def generate_token() -> str:
 def create_transaction() -> Transaction:
     """Crea una nueva transacción con token y fecha de expiración"""
     token = generate_token()
-    expires_at = datetime.now() + timedelta(minutes=5)  # 5 minutos de expiración
+    expires_at = datetime.now() + timedelta(minutes=15)  # 15 minutos de expiración
     
     transaction = Transaction(
         token=token,

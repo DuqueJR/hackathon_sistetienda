@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confianza Vecina - Bot WhatsApp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #075e54;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .chat-header {
+            background: #128c7e;
+            color: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+
+        .chat-header h1 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f0f0f0;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .bot-message {
+            background: #e5ddd5;
+            color: #333;
+            margin-right: auto;
+        }
+
+        .user-message {
+            background: #dcf8c6;
+            color: #333;
+            margin-left: auto;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 20px 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+        }
+
+        .chat-input button {
+            padding: 12px 20px;
+            background: #128c7e;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #128c7e;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .btn-primary:hover {
+            background: #0f7a6f;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>🏪 Confianza Vecina</h1>
+            <p>Bot de WhatsApp - Solicitud de Crédito</p>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            <div class="message bot-message">
+                ¡Hola! 👋<br><br>
+                Soy el asistente de <strong>Confianza Vecina</strong>, el sistema de crédito basado en la confianza de tu tendero.<br><br>
+                Para procesar tu solicitud de crédito, necesito algunos datos básicos.
+            </div>
+        </div>
+
+        <div class="chat-input" id="chat-input">
+            <input type="text" id="message-input" placeholder="Escribe tu mensaje..." disabled>
+            <button id="send-btn" disabled>Enviar</button>
+        </div>
+    </div>
+
+    <!-- Formulario oculto para capturar datos -->
+    <div id="form-container" style="display: none;">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1>📝 Formulario de Datos</h1>
+                <p>Completa la información requerida</p>
+            </div>
+            
+            <div class="chat-messages">
+                <div class="message bot-message">
+                    Perfecto, ahora necesito que completes este formulario con tus datos personales:
+                </div>
+                
+                <form id="client-form">
+                    <div class="form-group">
+                        <label for="cedula">Cédula:</label>
+                        <input type="text" id="cedula" name="cedula" required placeholder="Ej: 12345678">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="nombre">Nombre completo:</label>
+                        <input type="text" id="nombre" name="nombre" required placeholder="Ej: Juan Pérez">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="telefono">Teléfono:</label>
+                        <input type="tel" id="telefono" name="telefono" required placeholder="Ej: 3001234567">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="direccion">Dirección (opcional):</label>
+                        <input type="text" id="direccion" name="direccion" placeholder="Ej: Calle 123 #45-67">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ingresos">Ingresos mensuales (opcional):</label>
+                        <input type="number" id="ingresos" name="ingresos_mensuales" min="0" step="1000" placeholder="Ej: 1500000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="trabajo">Trabajo (opcional):</label>
+                        <input type="text" id="trabajo" name="trabajo" placeholder="Ej: Empleado">
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">Enviar Datos</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+        let currentToken = null;
+        let currentStep = 'welcome';
+
+        // Elementos del DOM
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        const formContainer = document.getElementById('form-container');
+        const clientForm = document.getElementById('client-form');
+
+        // Función para extraer token de la URL
+        function extractTokenFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            if (token) {
+                currentToken = token;
+                showForm();
+            }
+        }
+
+        // Función para mostrar el formulario
+        function showForm() {
+            chatInput.style.display = 'none';
+            formContainer.style.display = 'block';
+            addBotMessage('Perfecto, he detectado tu token de solicitud. Ahora necesito que completes el formulario con tus datos personales.');
+        }
+
+        // Función para agregar mensaje del bot
+        function addBotMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot-message';
+            messageDiv.innerHTML = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Función para agregar mensaje del usuario
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user-message';
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Función para enviar datos del cliente
+        async function sendClientData(formData) {
+            try {
+                const data = {
+                    token: currentToken,
+                    cedula: formData.get('cedula'),
+                    nombre: formData.get('nombre'),
+                    telefono: formData.get('telefono'),
+                    direccion: formData.get('direccion') || null,
+                    ingresos_mensuales: formData.get('ingresos_mensuales') ? parseFloat(formData.get('ingresos_mensuales')) : null,
+                    trabajo: formData.get('trabajo') || null
+                };
+
+                const response = await fetch(`${API_BASE_URL}/webhooks/whatsapp`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Error al enviar datos');
+                }
+
+                const result = await response.json();
+                console.log('Datos enviados:', result);
+
+                addBotMessage(`
+                    ✅ <strong>¡Datos recibidos correctamente!</strong><br><br>
+                    Gracias por completar el formulario. Tu solicitud está siendo procesada.<br><br>
+                    <strong>Próximos pasos:</strong><br>
+                    • Tu tendero validará la información<br>
+                    • Recibirás una respuesta en unos minutos<br>
+                    • Si es aprobado, te contactaremos con los detalles del crédito<br><br>
+                    ¡Gracias por confiar en Confianza Vecina! 🏪
+                `);
+
+            } catch (error) {
+                console.error('Error:', error);
+                addBotMessage(`
+                    ❌ <strong>Error al procesar tu solicitud</strong><br><br>
+                    ${error.message}<br><br>
+                    Por favor, intenta nuevamente o contacta a tu tendero.
+                `);
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            extractTokenFromURL();
+            
+            clientForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const submitBtn = clientForm.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Enviando...';
+                
+                const formData = new FormData(clientForm);
+                await sendClientData(formData);
+                
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Datos';
+            });
+        });
+    </script>
+</body>
+</html>
