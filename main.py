@@ -177,7 +177,7 @@ async def pos_webhook(request: POSWebhookRequest):
             # Calcular puntaje y procesar crédito
             update_transaction(token, status=TransactionStatus.PROCESSING)
             credit_result = calculate_credit_score(transaction)
-            update_transaction(token, credit_result=credit_result.dict())
+            update_transaction(token, credit_result=credit_result.model_dump())
             
             # Simular registro en Sistecrédito
             register_credit_mock(transaction, credit_result)
