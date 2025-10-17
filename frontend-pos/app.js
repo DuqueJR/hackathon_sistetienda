@@ -60,12 +60,15 @@ async function iniciarProceso() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({})
+            body: JSON.stringify({
+                store_id: "TIENDA_DEMO",
+                tendero_name: "Tendero Demo"
+            })
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.detail || 'Error al iniciar el proceso');
+            throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
         }
 
         const data = await response.json();
