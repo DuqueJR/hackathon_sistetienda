@@ -3,14 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confianza Vecina - Simulador POS</title>
+    <title>Sistetienda - Simulador POS</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🏪 Confianza Vecina</h1>
-            <p>Sistema de Originación de Crédito</p>
+            <div class="logo-container">
+                <h1 class="logo">
+                    <span class="logo-siste">siste</span><span class="logo-tienda">tienda</span>
+                </h1>
+                <p class="logo-subtitle">sistecredito</p>
+            </div>
+            <p class="header-description">Sistema de Originación de Crédito</p>
         </header>
 
         <!-- Vista 1: Inicio -->
@@ -28,10 +33,10 @@
                 <h2>Código QR Generado</h2>
                 <div id="qr-container"></div>
                 <p><strong>Instrucciones para el cliente:</strong></p>
-                <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                    <p style="margin: 0; color: #0369a1;">1. Abre WhatsApp en tu teléfono</p>
-                    <p style="margin: 5px 0 0 0; color: #0369a1;">2. Escanea este código QR</p>
-                    <p style="margin: 5px 0 0 0; color: #0369a1;">3. Completa el formulario que aparecerá</p>
+                <div class="instrucciones-container">
+                    <p class="instruccion-item">1. Abre WhatsApp en tu teléfono</p>
+                    <p class="instruccion-item">2. Escanea este código QR</p>
+                    <p class="instruccion-item">3. Completa el formulario que aparecerá</p>
                 </div>
                 <div id="timer">Tiempo restante: <span id="countdown">15:00</span></div>
                 <p style="margin-top: 15px; font-size: 0.9rem; color: #666;">
@@ -47,7 +52,7 @@
         <div id="validacion-view" class="view">
             <div class="card">
                 <h2>Validar Cliente</h2>
-                <p style="color: #666; margin-bottom: 20px;">
+                <p class="form-description">
                     Completa la información sobre tu relación con el cliente para evaluar su confiabilidad
                 </p>
                 <form id="validacion-form">
